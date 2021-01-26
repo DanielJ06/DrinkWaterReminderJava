@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Drink Water Reminder Java</string>
+    <string name="interval">Intervalo (min)</string>
+    <string name="notify">NOTIFY</string>
 </resources>

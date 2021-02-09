@@ -3,14 +3,20 @@ package com.danieljrodrigues.drinkwaterreminderjava;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.danieljrodrigues.drinkwaterreminderjava.util.NotificationPublisher;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         if(!activated) {
             notifyBtn.setText(R.string.pause);
             notifyBtn.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.darkPrimary));
-            activated = true;
 
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("activated", true);
@@ -77,6 +82,24 @@ public class MainActivity extends AppCompatActivity {
             editor.putInt("hour", hour);
             editor.putInt("minute", minute);
             editor.apply();
+
+            Intent notificationIntent = new Intent(
+                MainActivity.this, NotificationPublisher.class
+            );
+            notificationIntent.putExtra(NotificationPublisher.KEY_NOTIFICATION_ID, 1);
+            notificationIntent.putExtra(NotificationPublisher.KEY_NOTIFICATION, "Hora de beber água");
+
+            PendingIntent broadcast = PendingIntent.getBroadcast(
+                MainActivity.this, 0,
+                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
+            long futureInMillis = SystemClock.elapsedRealtime() + (interval * 1000);
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, broadcast);
+
+            activated = true;
         } else {
             notifyBtn.setText(R.string.notify);
             notifyBtn.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary));

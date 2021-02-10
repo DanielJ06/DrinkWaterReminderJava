@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
 
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), interval * 1000, broadcast
+                AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                interval * 60 * 1000, broadcast
             );
 
             activated = true;
@@ -116,6 +117,17 @@ public class MainActivity extends AppCompatActivity {
             editor.remove("interval");
             editor.remove("hour");
             editor.remove("minute");
+
+            Intent notificationIntent = new Intent(
+                MainActivity.this, NotificationPublisher.class
+            );
+            PendingIntent broadcast = PendingIntent.getBroadcast(
+                MainActivity.this, 0,
+                notificationIntent, 0
+            );
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarmManager.cancel(broadcast);
+
             editor.apply();
         }
     }
